@@ -1,0 +1,62 @@
+{
+  "name": "mf-calendar",
+  "version": "0.1.0",
+  "description": "A javascript plugin for calendar UI",
+  "main": "index.js",
+  "scripts": {
+    "webpack": "webpack",
+    "start": "webpack-dev-server --mode development --hot",
+    "build": "webpack --mode production"
+  },
+  "babel": {
+    "presets": [
+      "@babel/preset-env"
+    ],
+    "plugins": [
+      "@babel/plugin-proposal-class-properties"
+    ]
+  },
+  "browserslist": [
+    "last 4 version",
+    "ie 10",
+    "ie 11",
+    "Safari >= 8",
+    "iOS >= 8",
+    "Android >= 4.4"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/majoflosa/mf-calendar.git"
+  },
+  "keywords": [
+    "calendar",
+    "dates",
+    "month",
+    "year",
+    "week"
+  ],
+  "author": "Mauricio J Flores",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/majoflosa/mf-calendar/issues"
+  },
+  "homepage": "https://github.com/majoflosa/mf-calendar#readme",
+  "devDependencies": {
+    "@babel/core": "^7.9.6",
+    "@babel/plugin-proposal-class-properties": "^7.8.3",
+    "@babel/polyfill": "^7.8.7",
+    "@babel/preset-env": "^7.9.6",
+    "autoprefixer": "^9.7.6",
+    "babel-loader": "^8.1.0",
+    "css-loader": "3.4.2",
+    "mini-css-extract-plugin": "^0.9.0",
+    "node-sass": "^4.13.1",
+    "optimize-css-assets-webpack-plugin": "^5.0.3",
+    "postcss-loader": "^3.0.0",
+    "sass-loader": "7.3.1",
+    "style-loader": "1.1.3",
+    "svg-spritemap-webpack-plugin": "^3.5.5",
+    "webpack": "^4.43.0",
+    "webpack-cli": "^3.3.11"
+  }
+}

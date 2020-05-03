@@ -1,5 +1,5 @@
-import './calendar';
+import MFCalendar from './calendar';
 
 import '../scss/style.scss';
 
-console.log('index.js');
+new MFCalendar();

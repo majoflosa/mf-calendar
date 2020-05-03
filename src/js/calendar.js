@@ -4,15 +4,28 @@ import MFDay from './components/day';
 
 class MFCalendar {
     constructor(options = {}) {
+        if (typeof options.initialDate === 'string') {
+            options.initialDate = new Date(options.initialDate);
+        } else if (!options.initialDate instanceof Date) {
+            throw new Error('options.initialDate must be string or instance of Date');
+        }
+
         this.options = Object.assign({}, this.getDefaultOptions(), options);
         this.today = this.setToday();
-        this.currentDate = this.options.initialDate;
+        this.currentDate = this.createDate(
+            this.options.initialDate.getFullYear(),
+            this.options.initialDate.getMonth(),
+            this.options.initialDate.getDate()
+        );
+        this.activeView = this.options.initialView;
         
         this.mfMonth = null;
         this.mfWeek = null;
         this.mfDay = null;
 
-        this.createInitialView();
+        this.createInitialView({
+            initialDate: this.currentDate
+        });
 
         window.mfCalendar = this;
     }
@@ -36,6 +49,7 @@ class MFCalendar {
         };
 
         this.mfMonth = new MFMonth(data);
+        this.activeView = 'month';
     }
 
     createWeek(options = {}) {
@@ -47,6 +61,7 @@ class MFCalendar {
         };
 
         this.mfWeek = new MFWeek(data);
+        this.activeView = 'week';
     }
     
     createDay(options = {}) {
@@ -58,6 +73,16 @@ class MFCalendar {
         };
 
         this.mfDay = new MFDay(data);
+        this.activeView = 'day';
+    }
+
+    createDate(year, month, date) {
+        const fullDate = new Date(year, month, date);
+        const day = fullDate.getDay();
+        const dayName = this.options.dayNames[day];
+        const monthName = this.options.monthNames[month];
+
+        return { fullDate, date, day, dayName, month, monthName, year };
     }
 
     setToday() {

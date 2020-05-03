@@ -3,5 +3,5 @@ import MFCalendar from './calendar';
 import '../scss/style.scss';
 
 new MFCalendar({
-    initialDate: new Date(2020, 3, 2)
+    // initialDate: 'May 4, 2020'
 });

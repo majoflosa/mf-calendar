@@ -5,9 +5,11 @@ class MFMonth {
         this.daysInMonth = (new Date(this.current.year, this.current.month + 1, 0)).getDate();
         this.monthDays = [];
         this.monthWeeks = [];
+        this.daysEventsMap = null;
 
         this.setMonthDays();
         this.setMonthWeeks();
+        this.mapEventsToDays();
     }
 
     setMonthDays() {
@@ -19,6 +21,7 @@ class MFMonth {
             const fullDate = new Date(this.current.year, this.current.month, i - firstDay);
             const day = fullDate.getDay();
             const dayName = this.monthOptions.dayNames[day];
+            const isWeekEnd = day === 0 || day === 6;
             const isPast = true;
             const isToday = false;
             const isPastMonth = true;
@@ -26,7 +29,7 @@ class MFMonth {
             const events = [];
 
             this.monthDays.push({
-                fullDate, day, dayName, isPast, isToday, isPastMonth, isNextMonth, events
+                fullDate, day, dayName, isWeekEnd, isPast, isToday, isPastMonth, isNextMonth, events
             });
         }
 
@@ -35,6 +38,7 @@ class MFMonth {
             const fullDate = new Date(this.current.year, this.current.month, i);
             const day = fullDate.getDay();
             const dayName = this.monthOptions.dayNames[day];
+            const isWeekEnd = day === 0 || day === 6;
             const isPast = day < this.monthOptions.today.date;
             const isToday = day === this.monthOptions.today.date
                 && this.current.month === this.monthOptions.today.month;
@@ -43,7 +47,7 @@ class MFMonth {
             const events = [];
 
             this.monthDays.push({
-                fullDate, day, dayName, isPast, isToday, isPastMonth, isNextMonth, events
+                fullDate, day, dayName, isWeekEnd, isPast, isToday, isPastMonth, isNextMonth, events
             });
         }
 
@@ -53,6 +57,7 @@ class MFMonth {
             const fullDate = new Date(this.current.year, this.current.month, this.daysInMonth + i);
             const day = fullDate.getDay();
             const dayName = this.monthOptions.dayNames[day];
+            const isWeekEnd = day === 0 || day === 6;
             const isPast = false;
             const isToday = false;
             const isPastMonth = false;
@@ -60,7 +65,7 @@ class MFMonth {
             const events = [];
 
             this.monthDays.push({
-                fullDate, day, dayName, isPast, isToday, isPastMonth, isNextMonth, events
+                fullDate, day, dayName, isWeekEnd, isPast, isToday, isPastMonth, isNextMonth, events
             });
         }
     }
@@ -77,6 +82,87 @@ class MFMonth {
                 week = [];
             }
         }
+    }
+
+    mapEventsToDays() {
+        if (!this.monthOptions.events) return;
+
+        const { events } = this.monthOptions;
+        this.daysEventsMap = {};
+
+        events.forEach(event => {
+            const startDate = new Date(event.startDate);
+            const isInMonth = this.current.month === startDate.getMonth() && this.current.year === startDate.getFullYear();
+
+            if (isInMonth) {
+                const key = `${this.current.year}-${this.current.month}-${startDate.getDate()}`;
+                this.daysEventsMap[key] = this.daysEventsMap[key] 
+                    ? [...this.daysEventsMap[key], event]
+                    : [event];
+                
+                return;
+            }
+
+            let isInPastMonth;
+            if (this.current.month === 0) {
+                isInPastMonth = startDate.getMonth() === 11 && startDate.getFullYear() === this.current.year - 1;
+                
+                if (isInPastMonth) {
+                    const key = `${this.current.year - 1}-11-${startDate.getDate()}`;
+                    this.daysEventsMap[key] = this.daysEventsMap[key]
+                        ? [...this.daysEventsMap[key], event]
+                        : event;
+                    
+                    return;
+                }
+
+            } else {
+                isInPastMonth = startDate.getMonth() === this.current.month - 1;
+    
+                if (isInPastMonth) {
+                    const key = `${this.current.year}-${this.current.month - 1}-${startDate.getDate()}`;
+                    this.daysEventsMap[key] = this.daysEventsMap[key]
+                        ? [...this.daysEventsMap[key], event]
+                        : event;
+                        
+                    return;
+                }
+            }
+
+            let isInNextMonth;
+            if (this.current.month === 11) {
+                isInNextMonth = startDate.getMonth() === 0 && startDate.getFullYear() === this.current.year + 1;
+
+                if (isInNextMonth) {
+                    const key = `${this.current.year + 1}-0-${startDate.getDate()}`;
+                    this.daysEventsMap[key] = this.daysEventsMap[key]
+                        ? [...this.daysEventsMap[key], event]
+                        : event;
+
+                    return;
+                }
+            } else {
+                isInNextMonth = startDate.getMonth() === this.current.month + 1;
+
+                if (isInNextMonth) {
+                    const key = `${this.current.year}-${this.current.month + 1}-${startDate.getDate()}`;
+                    this.daysEventsMap[key] = this.daysEventsMap[key]
+                        ? [...this.daysEventsMap[key], event]
+                        : event;
+                }
+            }
+        });
+
+        this.monthDays.forEach(monthDay => {
+            const year = monthDay.fullDate.getFullYear();
+            const month = monthDay.fullDate.getMonth();
+            const date = monthDay.fullDate.getDate();
+            const key = `${year}-${month}-${date}`;
+
+            if (this.daysEventsMap[key]) {
+                monthDay.events.push(this.daysEventsMap[key]);
+            }
+        });
     }
 
     getDefaultOptions() {

@@ -18,13 +18,15 @@ class MFCalendar {
             this.options.initialDate.getDate()
         );
         this.activeView = this.options.initialView;
+        this.memo = {};
         
         this.mfMonth = null;
         this.mfWeek = null;
         this.mfDay = null;
 
         this.createInitialView({
-            initialDate: this.currentDate
+            initialDate: this.currentDate,
+            events: this.options.hasEvents && !this.options.asyncEvents ? this.options.events : null
         });
 
         window.mfCalendar = this;
@@ -46,6 +48,7 @@ class MFCalendar {
             initialDate: options.initialDate || this.options.initialDate,
             monthNames: options.monthNames || this.options.monthNames,
             dayNames: options.dayNames || this.options.dayNames,
+            events: options.events
         };
 
         this.mfMonth = new MFMonth(data);
@@ -58,6 +61,7 @@ class MFCalendar {
             initialDate: options.initialDate || this.options.initialDate,
             monthNames: options.monthNames || this.options.monthNames,
             dayNames: options.dayNames || this.options.dayNames,
+            events: options.events
         };
 
         this.mfWeek = new MFWeek(data);
@@ -70,6 +74,7 @@ class MFCalendar {
             initialDate: options.initialDate || this.options.initialDate,
             monthNames: options.monthNames || this.options.monthNames,
             dayNames: options.dayNames || this.options.dayNames,
+            events: options.events
         };
 
         this.mfDay = new MFDay(data);
@@ -103,10 +108,12 @@ class MFCalendar {
         const navigation = true;
         const allowPast = true;
         const hasEvents = true;
+        const asyncEvents = false;
+        const events = [];
         const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
         const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
-        return { initialDate, initialView, navigation, allowPast, hasEvents, monthNames, dayNames };
+        return { initialDate, initialView, navigation, allowPast, hasEvents, asyncEvents, events, monthNames, dayNames };
     }
 }
 

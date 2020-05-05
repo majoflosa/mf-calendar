@@ -111,19 +111,18 @@ class MFMonth {
                     const key = `${this.current.year - 1}-11-${startDate.getDate()}`;
                     this.daysEventsMap[key] = this.daysEventsMap[key]
                         ? [...this.daysEventsMap[key], event]
-                        : event;
+                        : [event];
                     
                     return;
                 }
-
             } else {
-                isInPastMonth = startDate.getMonth() === this.current.month - 1;
+                isInPastMonth = startDate.getMonth() === this.current.month - 1 && startDate.getFullYear() === this.current.year;
     
                 if (isInPastMonth) {
                     const key = `${this.current.year}-${this.current.month - 1}-${startDate.getDate()}`;
                     this.daysEventsMap[key] = this.daysEventsMap[key]
                         ? [...this.daysEventsMap[key], event]
-                        : event;
+                        : [event];
                         
                     return;
                 }
@@ -137,18 +136,18 @@ class MFMonth {
                     const key = `${this.current.year + 1}-0-${startDate.getDate()}`;
                     this.daysEventsMap[key] = this.daysEventsMap[key]
                         ? [...this.daysEventsMap[key], event]
-                        : event;
+                        : [event];
 
                     return;
                 }
             } else {
-                isInNextMonth = startDate.getMonth() === this.current.month + 1;
+                isInNextMonth = startDate.getMonth() === this.current.month + 1 && startDate.getFullYear() === this.current.year;
 
                 if (isInNextMonth) {
                     const key = `${this.current.year}-${this.current.month + 1}-${startDate.getDate()}`;
                     this.daysEventsMap[key] = this.daysEventsMap[key]
                         ? [...this.daysEventsMap[key], event]
-                        : event;
+                        : [event];
                 }
             }
         });

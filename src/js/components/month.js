@@ -1,15 +1,23 @@
 class MFMonth {
     constructor(options) {
-        this.monthOptions = Object.assign({}, this.getDefaultOptions(), options);
-        this.current = this.monthOptions.initialDate;
+        this.options = Object.assign({}, this.getDefaultOptions(), options);
+        this.current = this.options.initialDate;
         this.daysInMonth = (new Date(this.current.year, this.current.month + 1, 0)).getDate();
+        this.monthHeaderDays = [];
         this.monthDays = [];
         this.monthWeeks = [];
         this.daysEventsMap = null;
 
+        this.setMonthHeader();
         this.setMonthDays();
         this.setMonthWeeks();
         this.mapEventsToDays();
+    }
+
+    setMonthHeader() {
+        this.monthHeaderDays = this.options.abbreviateDayNames.includes('month')
+            ? this.options.dayAbbreviations.slice()
+            : this.options.dayNames.slice();
     }
 
     setMonthDays() {
@@ -20,7 +28,7 @@ class MFMonth {
         for (let i = 1; i <= firstDay; i++) {
             const fullDate = new Date(this.current.year, this.current.month, i - firstDay);
             const day = fullDate.getDay();
-            const dayName = this.monthOptions.dayNames[day];
+            const dayName = this.options.dayNames[day];
             const isWeekEnd = day === 0 || day === 6;
             const isPast = true;
             const isToday = false;
@@ -37,11 +45,11 @@ class MFMonth {
         for (let i = 1; i <= this.daysInMonth; i++) {
             const fullDate = new Date(this.current.year, this.current.month, i);
             const day = fullDate.getDay();
-            const dayName = this.monthOptions.dayNames[day];
+            const dayName = this.options.dayNames[day];
             const isWeekEnd = day === 0 || day === 6;
-            const isPast = day < this.monthOptions.today.date;
-            const isToday = day === this.monthOptions.today.date
-                && this.current.month === this.monthOptions.today.month;
+            const isPast = day < this.options.today.date;
+            const isToday = day === this.options.today.date
+                && this.current.month === this.options.today.month;
             const isPastMonth = false;
             const isNextMonth = false;
             const events = [];
@@ -56,7 +64,7 @@ class MFMonth {
         for (let i = 1; i < 7 - lastGridDay; i++) {
             const fullDate = new Date(this.current.year, this.current.month, this.daysInMonth + i);
             const day = fullDate.getDay();
-            const dayName = this.monthOptions.dayNames[day];
+            const dayName = this.options.dayNames[day];
             const isWeekEnd = day === 0 || day === 6;
             const isPast = false;
             const isToday = false;
@@ -85,9 +93,9 @@ class MFMonth {
     }
 
     mapEventsToDays() {
-        if (!this.monthOptions.events) return;
+        if (!this.options.events) return;
 
-        const { events } = this.monthOptions;
+        const { events } = this.options;
         this.daysEventsMap = {};
 
         events.forEach(event => {

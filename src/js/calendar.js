@@ -24,10 +24,7 @@ class MFCalendar {
         this.mfWeek = null;
         this.mfDay = null;
 
-        this.createInitialView({
-            initialDate: this.currentDate,
-            events: this.options.hasEvents && !this.options.asyncEvents ? this.options.events : null
-        });
+        this.createInitialView(this.options);
 
         window.mfCalendar = this;
     }
@@ -43,15 +40,9 @@ class MFCalendar {
     }
 
     createMonth(options = {}) {
-        const data = {
-            today: this.today,
-            initialDate: options.initialDate || this.options.initialDate,
-            monthNames: options.monthNames || this.options.monthNames,
-            dayNames: options.dayNames || this.options.dayNames,
-            events: options.events
-        };
+        const monthOptions = { ...options, initialDate: this.currentDate, today: this.today };
 
-        this.mfMonth = new MFMonth(data);
+        this.mfMonth = new MFMonth(monthOptions);
         this.activeView = 'month';
     }
 
@@ -111,9 +102,13 @@ class MFCalendar {
         const asyncEvents = false;
         const events = [];
         const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+        const monthAbbreviations = monthNames.map(month => month.substr(0, 3));
         const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        const dayAbbreviations = dayNames.map(day => day.substr(0, 3));
+        const abbreviateDayNames = ['month', 'week'];
 
-        return { initialDate, initialView, navigation, allowPast, hasEvents, asyncEvents, events, monthNames, dayNames };
+        return { initialDate, initialView, navigation, allowPast, hasEvents, asyncEvents, events, monthNames,
+            monthAbbreviations, dayNames, dayAbbreviations, abbreviateDayNames };
     }
 }
 

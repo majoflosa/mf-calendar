@@ -30,22 +30,6 @@ class MFCalendar {
     }
 
     /**
-     * Checks that options passed in to Calendar on instantiation are of expected types and shape;
-     * converts to valid options where possible
-     * 
-     * @param {object} options Object containing configuration settings for main calendar
-     */
-    validateOptions(options) {
-        if (typeof options.initialDate === 'string') {
-            options.initialDate = new Date(options.initialDate);
-        } else if (!options.initialDate instanceof Date) {
-            throw new Error('options.initialDate must be string or instance of Date');
-        }
-
-        return Object.assign({}, this.getDefaultOptions(), options);
-    }
-
-    /**
      * Invokes appropriate method to generate initial view.
      * 
      * @param {object} options Object containing configuration information
@@ -159,6 +143,117 @@ class MFCalendar {
 
         return { initialDate, initialView, navigation, allowPast, allowFuture, hasEvents, asyncEvents, events,
             monthNames, monthAbbreviations, dayNames, dayAbbreviations, abbreviateDayNames };
+    }
+
+    /**
+     * Checks that options passed in to Calendar on instantiation are of expected types and shape;
+     * converts to valid options where possible
+     * 
+     * @param {object} options Object containing configuration settings for main calendar
+     */
+    validateOptions(options) {
+        const calendarOptions = Object.assign({}, options);
+        const defaultOptions = this.getDefaultOptions();
+
+        // validate initial view
+        if (options.initialView !== undefined) {
+            const validInitialViews = ['month', 'week', 'day'];
+            if (typeof options.initialView !== 'string') {
+                throw new Error(`options.initialView expects string; ${typeof options.initialView} provided.`);
+            }
+            if (!validInitialViews.includes(options.initialView)) {
+                throw new Error(`options.initialView must be one of 'month', 'week', or 'day'. ${options.initialView} provided.`);
+            }
+        }
+
+        // validate initial Date
+        if (options.initialDate !== undefined) {
+            const invalidDateTypes = ['number', 'boolean'];
+            const initialDateType = typeof options.initialDate;
+            if (invalidDateTypes.includes(initialDateType) || options.initialDate === null) {
+                throw new Error(`options.initialDate expects a string or instance of Date; ${initialDateType} provided.`);
+            }
+            if (initialDateType === 'string') {
+                calendarOptions.initialDate = new Date(options.initialDate);
+                if (isNaN(calendarOptions.initialDate.getTime())) {
+                    throw new Error('options.initialDate is not a valid date.');
+                }
+            } else if (!options.initialDate instanceof Date || !options.initialDate.getTime) {
+                throw new Error('options.initialDate must be string or instance of Date');
+            }
+        }
+
+        // validate navigation
+        if (options.navigation !== undefined) {
+            if (typeof options.navigation !== 'boolean') {
+                calendarOptions.navigation = !!options.navigation;
+            }
+        }
+
+        // validate allowPast
+        if (options.allowPast !== undefined) {
+            if (typeof options.allowPast !== 'boolean') {
+                calendarOptions.allowPast = !!options.allowPast;
+            }
+        }
+        if (calendarOptions.navigation === false) {
+            calendarOptions.allowPast = false;
+        }
+
+        // validate allowFuture
+        if (options.allowFuture !== undefined) {
+            if (typeof options.allowFuture !== 'boolean') {
+                calendarOptions.allowFuture = !!options.allowFuture;
+            }
+        }
+        if (calendarOptions.navigation === false) {
+            calendarOptions.allowFuture = false;
+        }
+
+        // validate hasEvents
+        if (options.hasEvents !== undefined) {
+            if (typeof options.hasEvents !== 'boolean') {
+                calendarOptions.hasEvents = !!options.hasEvents;
+            }
+        }
+
+        // validate asyncEvents
+        if (options.asyncEvents !== undefined) {
+            if (typeof options.asyncEvents !== 'boolean') {
+                calendarOptions.asyncEvents = !!options.asyncEvents;
+            }
+        }
+        if (options.hasEvents === false) {
+            calendarOptions.asyncEvents = false;
+        }
+
+        // validate events
+        if (options.events !== undefined) {
+            if (!Array.isArray(options.events)) {
+                throw new Error(`options.events must be an array; ${typeof options.events} was provided.`);
+            }
+            options.events.forEach((event, i) => {
+                if (!event.title || typeof event.title !== 'string') {
+                    throw new Error(`All items in options.events must contain a 'title' property of type string. Item at index ${i} is invalid.`);
+                }
+                if (!event.startDate) {
+                    throw new Error(`All items in options.events must contain a 'startDate' property of type string or instance of Date. Item at index ${i} is invalid.`);
+                }
+                if (typeof event.startDate === 'number' || typeof event.startDate === 'boolean' || event.startDate === null) {
+                    throw new Error(`All items in options.events must contain a 'startDate' property of type string or instance of Date. Item at index ${i} is invalid.`);
+                }
+                if (typeof event.startDate === 'string') {
+                    const date = new Date(event.startDate);
+                    if (isNaN(date.getTime())) {
+                        throw new Error(`The item at index ${i} of options.events contains an invalid date as startDate.`);
+                    }
+                } else if (!event.startDate instanceof Date || isNaN(event.startDate.getTime())) {
+                    throw new Error(`The item at index ${i} of options.events contains an invalid date as startDate.`);
+                }
+            });
+        }
+
+        return Object.assign(defaultOptions, calendarOptions);
     }
 }
 

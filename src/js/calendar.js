@@ -4,13 +4,8 @@ import MFDay from './components/day';
 
 class MFCalendar {
     constructor(options = {}) {
-        if (typeof options.initialDate === 'string') {
-            options.initialDate = new Date(options.initialDate);
-        } else if (!options.initialDate instanceof Date) {
-            throw new Error('options.initialDate must be string or instance of Date');
-        }
-
-        this.options = Object.assign({}, this.getDefaultOptions(), options);
+        // set main calendar info
+        this.options = this.validateOptions(options);
         this.today = this.setToday();
         this.currentDate = this.createDate(
             this.options.initialDate.getFullYear(),
@@ -18,17 +13,43 @@ class MFCalendar {
             this.options.initialDate.getDate()
         );
         this.activeView = this.options.initialView;
+
+        // keep cache of previously generated views
         this.memo = {};
         
+        // keep track of current month/week/day instances
         this.mfMonth = null;
         this.mfWeek = null;
         this.mfDay = null;
 
+        // create initial view
         this.createInitialView(this.options);
 
+        // set global variable
         window.mfCalendar = this;
     }
 
+    /**
+     * Checks that options passed in to Calendar on instantiation are of expected types and shape;
+     * converts to valid options where possible
+     * 
+     * @param {object} options Object containing configuration settings for main calendar
+     */
+    validateOptions(options) {
+        if (typeof options.initialDate === 'string') {
+            options.initialDate = new Date(options.initialDate);
+        } else if (!options.initialDate instanceof Date) {
+            throw new Error('options.initialDate must be string or instance of Date');
+        }
+
+        return Object.assign({}, this.getDefaultOptions(), options);
+    }
+
+    /**
+     * Invokes appropriate method to generate initial view.
+     * 
+     * @param {object} options Object containing configuration information
+     */
     createInitialView(options = {}) {
         switch(this.options.initialView) {
             case 'day': this.createDay(options); break;
@@ -39,6 +60,11 @@ class MFCalendar {
         }
     }
 
+    /**
+     * Instantiates month component with main calendar settings
+     * 
+     * @param {object} options Object of configuration information for month view
+     */
     createMonth(options = {}) {
         const monthOptions = { ...options, initialDate: this.currentDate, today: this.today };
 
@@ -46,6 +72,11 @@ class MFCalendar {
         this.activeView = 'month';
     }
 
+    /**
+     * Instantiates week component with main calendar settings
+     * 
+     * @param {object} options Object of configuration information for week view
+     */
     createWeek(options = {}) {
         const data = {
             today: this.today,
@@ -59,6 +90,11 @@ class MFCalendar {
         this.activeView = 'week';
     }
     
+    /**
+     * Instantiates day component with main calendar settings
+     * 
+     * @param {object} options Object of configuration information for day view
+     */
     createDay(options = {}) {
         const data = {
             today: this.today,
@@ -72,6 +108,13 @@ class MFCalendar {
         this.activeView = 'day';
     }
 
+    /**
+     * Returns an object wrapping Date instance with additional information for easier access
+     * 
+     * @param {number} year 4-digit number representing year of date to create
+     * @param {number} month Number from 0-11 representing month of date to create
+     * @param {number} date Number from 1-31 representing date of date to create
+     */
     createDate(year, month, date) {
         const fullDate = new Date(year, month, date);
         const day = fullDate.getDay();
@@ -81,6 +124,9 @@ class MFCalendar {
         return { fullDate, date, day, dayName, month, monthName, year };
     }
 
+    /**
+     * Returns object with information about current date
+     */
     setToday() {
         const fullDate = new Date();
         const date = fullDate.getDate();
@@ -93,11 +139,15 @@ class MFCalendar {
         return { fullDate, date, day, dayName, month, monthName, year };
     }
 
+    /**
+     * Returns object with default configuration settings
+     */
     getDefaultOptions() {
         const initialDate = new Date();
         const initialView = 'month';
         const navigation = true;
         const allowPast = true;
+        const allowFuture = true;
         const hasEvents = true;
         const asyncEvents = false;
         const events = [];
@@ -107,8 +157,8 @@ class MFCalendar {
         const dayAbbreviations = dayNames.map(day => day.substr(0, 3));
         const abbreviateDayNames = ['month', 'week'];
 
-        return { initialDate, initialView, navigation, allowPast, hasEvents, asyncEvents, events, monthNames,
-            monthAbbreviations, dayNames, dayAbbreviations, abbreviateDayNames };
+        return { initialDate, initialView, navigation, allowPast, allowFuture, hasEvents, asyncEvents, events,
+            monthNames, monthAbbreviations, dayNames, dayAbbreviations, abbreviateDayNames };
     }
 }
 

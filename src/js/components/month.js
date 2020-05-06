@@ -1,25 +1,39 @@
 class MFMonth {
     constructor(options) {
+        // options received from main calendar component
         this.options = Object.assign({}, this.getDefaultOptions(), options);
+        // information wrapping Date based on initial date to render
         this.current = this.options.initialDate;
+        // number of days in month to render
         this.daysInMonth = (new Date(this.current.year, this.current.month + 1, 0)).getDate();
+        // Names to use for day labels in month header
         this.monthHeaderDays = [];
+        // objects representing each day that will form the month's grid
         this.monthDays = [];
+        // alternative arrangement of day objects grouped by weeks (rows)
         this.monthWeeks = [];
+        // object mapping days that contain events with array of the day's events ({ yyyy-mm-dd: [...events] })
         this.daysEventsMap = null;
 
+        // invoke methods setting month data
         this.setMonthHeader();
         this.setMonthDays();
         this.setMonthWeeks();
         this.mapEventsToDays();
     }
 
+    /**
+     * Sets monthHeaderDays to array of names to use for day labels in month header
+     */
     setMonthHeader() {
         this.monthHeaderDays = this.options.abbreviateDayNames.includes('month')
             ? this.options.dayAbbreviations.slice()
             : this.options.dayNames.slice();
     }
 
+    /**
+     * Pushes objects representing each day that will form the month's grid into this.monthDays
+     */
     setMonthDays() {
         // remainder days from past month
         const firstDayDate = new Date(this.current.year, this.current.month, 1);
@@ -78,6 +92,9 @@ class MFMonth {
         }
     }
 
+    /**
+     * Pushes arrays, each containing 7 day objects that form each week in month grid, into this.monthWeeks
+     */
     setMonthWeeks() {
         if (!this.monthDays.length) console.warn('MFMonth.monthDays cannot set weeks without days.');
 
@@ -92,6 +109,10 @@ class MFMonth {
         }
     }
 
+    /**
+     * Sets daystoEventsMap to  object mapping days that contain events with array of the day's events 
+     * ({ yyyy-mm-dd: [...events] })
+     */
     mapEventsToDays() {
         if (!this.options.events) return;
 
@@ -99,7 +120,7 @@ class MFMonth {
         this.daysEventsMap = {};
 
         events.forEach(event => {
-            const startDate = new Date(event.startDate);
+            const startDate = typeof event.startDate === 'string' ? new Date(event.startDate) : event.startDate;
             const isInMonth = this.current.month === startDate.getMonth() && this.current.year === startDate.getFullYear();
 
             if (isInMonth) {
